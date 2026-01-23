@@ -406,8 +406,14 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,windows,macos,python,jupyternotebooks,data,visualstudiocode,pycharm
 
-# Custom (hhs: 2026-01-19)
+# Custom (hhs: 2026-01-21)
+data/
+datasets/
+wandb/
 *.tar
 *.pkl
 *.h5
+*.pth
 *.pt
+*.onnx
+*.weights
