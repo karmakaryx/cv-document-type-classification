@@ -18,16 +18,17 @@
 ### > 평가지표 (Evaluation Metric)
 - Macro f1 score: 각 클래스에 대한 f1 score를 개별적으로 계산 후, 평균
 
----
+<br>
 
 ## **📊 Experiment Logger**
-| 실험번호 | 날짜 | 모델 | 주요변경사항 | Augmentation | LR | 점수 |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| #001 | 2026-01-23 | ResNet50 | 기본 제공 코드 | None (Base) | 1e-4 | 0.4195 |
-| #002 | 2026-01-23 | EfficientNet-B3 | 검증셋 분리 | Brightness, Rotation | 1e-4 | 0.5070 |
-| #003 | 2026-01-24 | Swin-Base 384 | Stratified 5-Fold | Flip, Noise | 5e-5 | 0.7632 |
+| 실험번호 | 날짜 | 모델 | 주요변경사항 | Augmentation | LR | 점수 | 결과 |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| #001 | 2026-01-23 | ResNet50 | 기본 제공 코드 | None (Base) | 1e-4 | 0.4195 | S |
+| #002 | 2026-01-23 | EfficientNet-B3 | 검증셋 분리 | Brightness, Rotation | 1e-4 | 0.5070 | S |
+| #003 | 2026-01-24 | Swin-Base 384 | Stratified 5-Fold | Flip, Noise | 5e-5 | 0.8105 | S |
+| #004 | 2026-01-25 | Swin-Large 384 | Mixup, TTA |  | 5e-5 | 0.7133 | F |
 
----
+<br>
 
 ## **📜 Version Log**
 
@@ -49,8 +50,11 @@
 - Stratified K-Fold + fold ensemble 추론
 - Model 변경: Swin-Base 384
 - Augmentation 추가
+- Hyperparameter 변경
 
----
+### V4: 개발중
+
+<br>
 
 ## **🚀 Project Development Log**
 
@@ -70,3 +74,8 @@
 - **Key Task:** 검증셋 분리, 정체된 f1 score 개선
 - **Result:** Leaderboard 🥇 갱신
 - **Note:** V3 개발 (Swin Transformer와 Stratified 5-Fold가 극적 효과)
+
+## 2026-01-25 (Sun)
+- **Key Task:** f1 score 최고점 갱신 시도
+- **Result:** Fail (0.0972 하락)
+- **Note:** Swin-Large, Mixup, TTA 시도해 봤으나 모두 실패
