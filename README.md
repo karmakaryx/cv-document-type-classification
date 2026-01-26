@@ -72,7 +72,7 @@
 - Augmentation 추가
 
 ### V5: 개발 중
-- code cleanup (Stratified K-Fold 단일 운영)
+- Code cleanup (Stratified K-Fold 단일 운영)
 - TTA (Test Time Augmentation) 적용
 
 <br>
@@ -105,6 +105,6 @@
 - **Key Task:** Confusion Matrix 적용
 - **Note:** 실패한 모델은 폐기하고 best로 실험환경 원복하는 기준 적용
 <br>V4 개발 (Confusion Matrix를 통해 문제있는 클래스들을 적발, oversampling과 맞춤형 증강 추가)
-<br>TTA 재시도
+<br>Code cleanup, TTA 재시도
 
 <br>
