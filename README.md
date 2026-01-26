@@ -16,7 +16,7 @@
 - 난이도 조절을 위해 여러 augmentations 적용
 
 ### > 평가지표 (Evaluation Metric)
-- Macro f1 score: 각 클래스에 대한 f1 score를 개별적으로 계산 후, 평균
+- Macro F1 score: 각 클래스에 대한 F1 score를 개별적으로 계산 후, 평균
 
 <br>
 
@@ -27,6 +27,17 @@
 | #002 | 2026-01-23 | EfficientNet-B3 | 검증셋 분리 | Brightness, Rotation | 1e-4 | 0.5070 | S |
 | #003 | 2026-01-24 | Swin-Base 384 | Stratified 5-Fold | Flip, Noise | 5e-5 | 0.8105 | S |
 | #004 | 2026-01-25 | Swin-Large 384 | Mixup, TTA |  | 5e-5 | 0.7133 | F |
+| #005 | 2026-01-25 | Swin-Base 384 | Oversampling | Resize, Padding | 1e-4 | 0.8047 | F |
+| #006 | 2026-01-26 | ConvNeXt-Base |  | RandomRotate90, Perspective | 1e-4 | 0.8678 | S |
+
+<br>
+
+## **🏆 Champion Model Info**
+- **Version:** V4 (ConvNeXt-Base)
+- **Training Time:** 1h 52m
+- **Time per Epoch:** 2m 9s
+- **Accuracy:** 86.78%
+- **GPU:** 	NVIDIA GeForce RTX 3090
 
 <br>
 
@@ -52,30 +63,40 @@
 - Augmentation 추가
 - Hyperparameter 변경
 
-### V4: 개발중
+### V4: ConvNeXt-Base
+- WandB 적용, Confusion Matrix 적용
+- Oversampling 적용
+- Image Size 증가 후 padding 적용
+- Model 변경: ConvNeXt-Base
+- Augmentation 추가
 
 <br>
 
 ## **🚀 Project Development Log**
 
-## 2026-01-18 (Sun)
+### 2026-01-18 (Sun)
 - **Key Task:** 프로젝트 착수
 - **Note:** 일정 수립 (Notion 사용), GitHub 설정
 
-## 2026-01-19 (Mon)
+### 2026-01-19 (Mon)
 - **Key Task:** 개발 환경 설정
-- **Note:** VS Code Extensions & library 설치, SSH 접속 확인
+- **Note:** VS Code Extensions & library 설치, 서버 설정, SSH 접속 확인
 
-## 2026-01-23 (Fri)
+### 2026-01-23 (Fri)
 - **Key Task:** Leaderboard 첫 제출 완료
 - **Note:** Baseline pipeline 검증, V1, V2 개발
 
-## 2026-01-24 (Sat)
+### 2026-01-24 (Sat)
 - **Key Task:** 검증셋 분리, 정체된 f1 score 개선
 - **Result:** Leaderboard 🥇 갱신
 - **Note:** V3 개발 (Swin Transformer와 Stratified 5-Fold가 극적 효과)
 
-## 2026-01-25 (Sun)
+### 2026-01-25 (Sun)
 - **Key Task:** f1 score 최고점 갱신 시도
 - **Result:** Fail (0.0972 하락)
-- **Note:** Swin-Large, Mixup, TTA 시도해 봤으나 모두 실패
+- **Note:** Swin-Large, Mixup, TTA 시도해 봤으나 모두 실패, WandB logging 적용
+
+### 2026-01-26 (Mon)
+- **Key Task:** Confusion Matrix 적용
+- **Note:** 실패한 모델은 폐기하고 best로 실험환경 원복하는 기준 적용
+<br>V4 개발 (Confusion Matrix를 통해 문제있는 클래스들을 적발, oversampling과 맞춤형 증강 추가)
