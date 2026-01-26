@@ -21,14 +21,15 @@
 <br>
 
 ## **📊 Experiment Logger**
-| No | 날짜 | 모델 | 주요변경사항 | Augmentation | LR | 점수 | 결과 |
+| No. | 날짜 | 모델 | 주요변경사항 | Augmentation | LR | 점수 | 결과 |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | #001 | 2026-01-23 | ResNet50 | 기본 제공 코드 | None (Base) | 1e-4 | 0.4195 | S |
 | #002 | 2026-01-23 | EfficientNet-B3 | 검증셋 분리 | Brightness, Rotation | 1e-4 | 0.5070 | S |
 | #003 | 2026-01-24 | Swin-Base 384 | Stratified 5-Fold | Flip, Noise | 5e-5 | 0.8105 | S |
 | #004 | 2026-01-25 | Swin-Large 384 | Mixup, TTA |  | 5e-5 | 0.7133 | F |
 | #005 | 2026-01-25 | Swin-Base 384 | Oversampling | Resize, Padding | 1e-4 | 0.8047 | F |
-| #006 | 2026-01-26 | ConvNeXt-Base |  | RandomRotate90,<br>Perspective | 1e-4 | 0.8678 | S |
+| #006 | 2026-01-26 | ConvNeXt-Base |  | RandomRotate90 | 1e-4 | 0.8678 | S |
+| #007 | 2026-01-26 |  | TTA |  | 1e-4 |  |  |
 
 <br>
 
@@ -70,6 +71,10 @@
 - Model 변경: ConvNeXt-Base
 - Augmentation 추가
 
+### V5: 개발 중
+- code cleanup (Stratified K-Fold 단일 운영)
+- TTA (Test Time Augmentation) 적용
+
 <br>
 
 ## **🚀 Project Development Log**
@@ -100,5 +105,6 @@
 - **Key Task:** Confusion Matrix 적용
 - **Note:** 실패한 모델은 폐기하고 best로 실험환경 원복하는 기준 적용
 <br>V4 개발 (Confusion Matrix를 통해 문제있는 클래스들을 적발, oversampling과 맞춤형 증강 추가)
+<br>TTA 재시도
 
 <br>
