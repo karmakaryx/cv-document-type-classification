@@ -29,13 +29,13 @@
 | #004 | 2026-01-25 | Swin-Large 384 | Mixup, TTA |  | 5e-5 | 0.7133 | F |
 | #005 | 2026-01-25 | Swin-Base 384 | Oversampling | Resize, Padding | 1e-4 | 0.8047 | F |
 | #006 | 2026-01-26 | ConvNeXt-Base |  | RandomRotate90 | 1e-4 | 0.8678 | S |
-| #007 | 2026-01-26 |  | TTA |  | 1e-4 |  |  |
+| #007 | 2026-01-26 |  | TTA | Crop | 1e-4 | 0.9049 | S |
 
 <br>
 
 ## **🏆 Champion Model Info**
-- **Version:** V4 (ConvNeXt-Base)
-- **Training Time:** 1h 52m
+- **Version:** V5 (ConvNeXt-Base)
+- **Training Time:** 2h 18m
 - **Time per Epoch:** 2m 9s
 - **Accuracy:** 86.78%
 - **GPU:** 	NVIDIA GeForce RTX 3090
@@ -71,9 +71,10 @@
 - Model 변경: ConvNeXt-Base
 - Augmentation 추가
 
-### V5: 개발 중
+### V5: ConvNeXt-Base (동일)
 - Code cleanup (Stratified K-Fold 단일 운영)
 - TTA (Test Time Augmentation) 적용
+- Augmentation 추가
 
 <br>
 
@@ -105,6 +106,9 @@
 - **Key Task:** Confusion Matrix 적용
 - **Note:** 실패한 모델은 폐기하고 best로 실험환경 원복하는 기준 적용
 <br>V4 개발 (Confusion Matrix를 통해 문제있는 클래스들을 적발, oversampling과 맞춤형 증강 추가)
-<br>Code cleanup, TTA 재시도
+<br>Code cleanup, TTA 재시도 (증강이 많이 추가되어 성공), EDA 후 잘린 문서 많아 crop 추가
+
+### 2026-01-27 (Tue)
+- **Note:** 지나친 증강으로 V5_02 실험 실패 (리더보드 미제출)
 
 <br>
