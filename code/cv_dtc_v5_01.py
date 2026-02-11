@@ -338,23 +338,23 @@ torch.cuda.empty_cache()
 
 # 클래스 이름 정의 (17개 클래스)
 class_names = [
-    "account_number",                                        # 0
-    "application_for_payment_of_pregnancy_medical_expenses", # 1
-    "car_dashboard",                                         # 2
-    "confirmation_of_admission_and_discharge",               # 3
-    "diagnosis",                                             # 4
-    "driver_lisence",                                        # 5
-    "medical_bill_receipts",                                 # 6
-    "medical_outpatient_certificate",                        # 7
-    "national_id_card",                                      # 8
-    "passport",                                              # 9
-    "payment_confirmation",                                  # 10
-    "pharmaceutical_receipt",                                # 11
-    "prescription",                                          # 12
-    "resume",                                                # 13
-    "statement_of_opinion",                                  # 14
-    "vehicle_registration_certificate",                      # 15
-    "vehicle_registration_plate"                             # 16
+    "account_number",                                         #0
+    "application_for_payment_of_pregnancy_medical_expenses",  #1
+    "car_dashboard",                                          #2
+    "confirmation_of_admission_and_discharge",                #3
+    "diagnosis",                                              #4
+    "driver_lisence",                                         #5
+    "medical_bill_receipts",                                  #6
+    "medical_outpatient_certificate",                         #7
+    "national_id_card",                                       #8
+    "passport",                                               #9
+    "payment_confirmation",                                   #10
+    "pharmaceutical_receipt",                                 #11
+    "prescription",                                           #12
+    "resume",                                                 #13
+    "statement_of_opinion",                                   #14
+    "vehicle_registration_certificate",                       #15
+    "vehicle_registration_plate"                              #16
 ]
 
 # WandB 초기화 (wandb login)
