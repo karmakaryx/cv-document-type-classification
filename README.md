@@ -49,32 +49,32 @@
 ## **⚙️ Components**
 ### Directory
 ```
-|-- assets/...
-|-- code/
-|   |-- .env
-|   |-- baseline.ipynb
-|   |-- cascade.py
-|   |-- cv_dtc_v6_conv.py
-|   |-- cv_dtc_v6_convspec.py
-|   |-- cv_dtc_v6_deit.py
-|   |-- cv_dtc_v6_maxvit.py
-|   |-- cv_dtc_v6_swin.py
-|   |-- snapshot_conv.py
-|   `-- snapshot_convspec.py
-|-- data/
-|   |-- checkpoints/...
-|   |-- confusionmatrix/...
-|   |-- test/...
-|   |-- train/...
-|   |-- meta.csv
-|   |-- output.csv
-|   |-- sample_submission.csv
-|   `-- train.csv
-|-- wandb/...
-|-- .gitignore
-|-- LICENSE
-|-- README.md
-`-- requirements.txt
+├── assets/...                 # README images
+├── code/
+│   ├── .env                   # 경로설정
+│   ├── baseline.ipynb         # baseline code
+│   ├── cascade.py             # ConvNeXt + ConvNeXt Special code 병합
+│   ├── cv_dtc_v6_conv.py      # ConvNeXt V2
+│   ├── cv_dtc_v6_convspec.py  # ConvNeXt Special
+│   ├── cv_dtc_v6_deit.py      # DeiT III
+│   ├── cv_dtc_v6_maxvit.py    # MaxViT Base
+│   ├── cv_dtc_v6_swin.py      # Swin Transformer V2
+│   ├── snapshot_conv.py       # Snapshot 실수 복원
+│   └── snapshot_convspec.py   # 실패한 fold 제외 후 재실험
+├── data/                      # 이하 GitHub 관리안함
+│   ├── checkpoints/...        # checkpoint 파일
+│   ├── confusionmatrix/...    # fold별 CM 파일
+│   ├── test/...               # test images
+│   ├── train/...              # train images
+│   ├── meta.csv               # class mapping info
+│   ├── output.csv             # 제출할 파일 생성
+│   ├── sample_submission.csv  # 0으로 초기화된 제출파일 template
+│   └── train.csv              # train 정답파일
+├── wandb/...                  # WandB log (GitHub 관리안함)
+├── .gitignore
+├── LICENSE
+├── README.md
+└── requirements.txt
 ```
 
 <br>
@@ -114,7 +114,7 @@ Model Ensemble은 모델별 가중치를 부여한 Weighted Soft Voting을 사�
 <br>
 
 ## **🧠 Modeling**
-### Model descrition
+### Model Descrition
 #### – MaxViT Base (maxvit_base_tf_512.in21k_ft_in1k)
 - Multi-Axis Attention: Blocked Attention (국소적 정보) + Grid Attention (전역적 정보)
 - MBConv(CNN 구조)와 Attention(Transformer 구조)의 하이브리드
