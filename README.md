@@ -253,10 +253,10 @@ Model Ensemble은 모델별 가중치를 부여한 Weighted Soft Voting을 사�
 <br>
 
 ## **🏆 Champion Model Info**
-- **Version:** V6 (ConvNeXt-Base)
-- **Training Time:** 2h 18m
-- **Time per Epoch:** 2m 9s
-- **Accuracy:** 90.49%
+- **Version:** V6 (MaxViT)
+- **Training Time:** 17h 21m
+- **Time per Epoch:** 14m 40s
+- **Accuracy:** 97.42%
 
 <br>
 
@@ -305,6 +305,7 @@ Model Ensemble은 모델별 가중치를 부여한 Weighted Soft Voting을 사�
 - Augraphy 적용
 - 7,3,4,14 클래스에 특화되고 추가 노이즈 증강본이 적용된 special 코드 작성
 - 별도 special 코드를 ConvNeXt와 cascade
+- cascade한 ConvNeXt를 MaxViT와 ensemble (Weighted Soft Voting)
 
 <br>
 
@@ -352,3 +353,5 @@ Model Ensemble은 모델별 가중치를 부여한 Weighted Soft Voting을 사�
 ## **🕰️ 프로젝트 회고**
 개발이 진행되면서 훈련 시간이 천문학적으로 늘며 CODE>WAIT>CODE>쪽잠>REPEAT의 반복이었던 2주였습니다. 특히 14시간짜리 실험이 대실패로 끝나거나, 학습 도중 0.01대의 괴랄한 F1로 모델이 폭주해버려 성공한 폴드만 일부 수습해서 재실험을 시도한다거나, 엄청난 기대를 걸었던 3,7 클래스 귀신잡는 특공대가 의외로 하찮은 성과를 내거나, 온갖 시행착오를 겪으며 실전감각을 몸으로 익히는게 자학적으로(ㅠㅠ) 즐거웠습니다.
 특정 클래스의 가중치를 한 스푼만 높여도, 앙상블 도중 한쪽의 soft voting 비율을 1%만 낮춰도 개복치 같은 리더보드에 배신당하기를 반복하며 내가 베이킹을 하는건지 AI 개발을 하는건지 싶을 때도 있었지만, OCD 성향을 살려 데이터를 집요하게 비교분석하고 클래스별로 약점을 핀셋 공략해 결국 제 가설이 성공으로 입증되는 과정은 꽤 뿌듯했습니다.
+
+<br>
