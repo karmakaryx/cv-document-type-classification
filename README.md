@@ -152,7 +152,7 @@ Model Ensemble은 모델별 가중치를 부여한 Weighted Soft Voting을 사�
       <th>모델</th>
       <th>주요변경사항</th>
       <th>Augmentation</th>
-      <th>&nbsp;&nbsp;LR&nbsp;&nbsp;</th>
+      <th>&nbsp;LR&nbsp;</th>
       <th colspan="2">점수 / 결과</th>
     </tr>
   </thead>
