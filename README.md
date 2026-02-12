@@ -160,71 +160,71 @@ Model Ensemble은 모델별 가중치를 부여한 Weighted Soft Voting을 사�
   <tbody>
     <tr>
       <td align="center">#001</td>
-      <td align="center">2026-01-23</td>
+      <td align="center"><nobr>2026-01-23</nobr></td>
       <td>ResNet50</td>
       <td>기본 제공 코드</td>
       <td>None (Base)</td>
-      <td align="center">1e-4</td>
+      <td align="center"><nobr>1e-4</nobr></td>
       <td align="center">0.4195</td>
       <td align="center">S</td>
     </tr>
     <tr>
       <td align="center">#002</td>
-      <td align="center">2026-01-23</td>
+      <td align="center"><nobr>2026-01-23</nobr></td>
       <td>EfficientNet-B3</td>
       <td>검증셋 분리</td>
-      <td>Brightness, Rotation</td>
-      <td align="center">1e-4</td>
+      <td><nobr>Brightness, Rotation</nobr></td>
+      <td align="center"><nobr>1e-4</nobr></td>
       <td align="center">0.5070</td>
       <td align="center">S</td>
     </tr>
     <tr>
       <td align="center">#003</td>
-      <td align="center">2026-01-24</td>
+      <td align="center"><nobr>2026-01-24</nobr></td>
       <td>Swin-Base 384</td>
-      <td>Stratified 5-Fold</td>
+      <td><nobr>Stratified 5-Fold</nobr></td>
       <td>Flip, Noise</td>
-      <td align="center">5e-5</td>
+      <td align="center"><nobr>5e-5</nobr></td>
       <td align="center">0.8105</td>
       <td align="center">S</td>
     </tr>
     <tr>
       <td align="center">#004</td>
-      <td align="center">2026-01-25</td>
+      <td align="center"><nobr>2026-01-25</nobr></td>
       <td>Swin-Large 384</td>
       <td>Mixup, TTA</td>
       <td></td>
-      <td align="center">5e-5</td>
+      <td align="center"><nobr>5e-5</nobr></td>
       <td align="center">0.7133</td>
       <td align="center">F</td>
     </tr>
     <tr>
       <td align="center">#005</td>
-      <td align="center">2026-01-25</td>
+      <td align="center"><nobr>2026-01-25</nobr></td>
       <td>Swin-Base 384</td>
       <td>Oversampling</td>
       <td>Resize, Padding</td>
-      <td align="center">1e-4</td>
+      <td align="center"><nobr>1e-4</nobr></td>
       <td align="center">0.8047</td>
       <td align="center">F</td>
     </tr>
     <tr>
       <td align="center">#006</td>
-      <td align="center">2026-01-26</td>
+      <td align="center"><nobr>2026-01-26</nobr></td>
       <td>ConvNeXt-Base</td>
       <td></td>
       <td>RandomRotate90</td>
-      <td align="center">1e-4</td>
+      <td align="center"><nobr>1e-4</nobr></td>
       <td align="center">0.8678</td>
       <td align="center">S</td>
     </tr>
     <tr>
       <td align="center">#007</td>
-      <td align="center">2026-01-26</td>
+      <td align="center"><nobr>2026-01-26</nobr></td>
       <td></td>
       <td>TTA</td>
       <td>Crop</td>
-      <td align="center">1e-4</td>
+      <td align="center"><nobr>1e-4</nobr></td>
       <td align="center">0.9049</td>
       <td align="center">S</td>
     </tr>
@@ -233,11 +233,11 @@ Model Ensemble은 모델별 가중치를 부여한 Weighted Soft Voting을 사�
     </tr>
     <tr>
       <td align="center">#999</td>
-      <td align="center">2026-02-04</td>
+      <td align="center"><nobr>2026-02-04</nobr></td>
       <td>MaxViT+ConvNeXt</td>
       <td>Ensemble</td>
       <td>Augraphy</td>
-      <td align="center">5e-5</td>
+      <td align="center"><nobr>5e-5</nobr></td>
       <td align="center">0.9742</td>
       <td align="center">S</td>
     </tr>
