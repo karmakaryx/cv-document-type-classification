@@ -152,13 +152,13 @@ Model Ensemble은 모델별 가중치를 부여한 Weighted Soft Voting을 사�
       <th>모델</th>
       <th>주요변경사항</th>
       <th>Augmentation</th>
-      <th>LR</th>
-      <th colspan="2">점수/결과</th>
+      <th>&nbsp;&nbsp;LR&nbsp;&nbsp;</th>
+      <th colspan="2">점수 / 결과</th>
     </tr>
   </thead>
   <tbody>
     <tr>
-      <td align="center">#001</td>
+      <td align="center">#01</td>
       <td align="center">20260123</td>
       <td>ResNet50</td>
       <td>기본 제공 코드</td>
@@ -168,7 +168,7 @@ Model Ensemble은 모델별 가중치를 부여한 Weighted Soft Voting을 사�
       <td align="center">S</td>
     </tr>
     <tr>
-      <td align="center">#002</td>
+      <td align="center">#02</td>
       <td align="center">20260123</td>
       <td>EfficientNet-B3</td>
       <td>검증셋 분리</td>
@@ -178,7 +178,7 @@ Model Ensemble은 모델별 가중치를 부여한 Weighted Soft Voting을 사�
       <td align="center">S</td>
     </tr>
     <tr>
-      <td align="center">#003</td>
+      <td align="center">#03</td>
       <td align="center">20260124</td>
       <td>Swin-Base 384</td>
       <td>Stratified 5-Fold</td>
@@ -188,7 +188,7 @@ Model Ensemble은 모델별 가중치를 부여한 Weighted Soft Voting을 사�
       <td align="center">S</td>
     </tr>
     <tr>
-      <td align="center">#004</td>
+      <td align="center">#04</td>
       <td align="center">20260125</td>
       <td>Swin-Large 384</td>
       <td>Mixup, TTA</td>
@@ -198,7 +198,7 @@ Model Ensemble은 모델별 가중치를 부여한 Weighted Soft Voting을 사�
       <td align="center">F</td>
     </tr>
     <tr>
-      <td align="center">#005</td>
+      <td align="center">#05</td>
       <td align="center">20260125</td>
       <td>Swin-Base 384</td>
       <td>Oversampling</td>
@@ -208,7 +208,7 @@ Model Ensemble은 모델별 가중치를 부여한 Weighted Soft Voting을 사�
       <td align="center">F</td>
     </tr>
     <tr>
-      <td align="center">#006</td>
+      <td align="center">#06</td>
       <td align="center">20260126</td>
       <td>ConvNeXt-Base</td>
       <td></td>
@@ -218,7 +218,7 @@ Model Ensemble은 모델별 가중치를 부여한 Weighted Soft Voting을 사�
       <td align="center">S</td>
     </tr>
     <tr>
-      <td align="center">#007</td>
+      <td align="center">#07</td>
       <td align="center">20260126</td>
       <td></td>
       <td>TTA</td>
@@ -231,7 +231,7 @@ Model Ensemble은 모델별 가중치를 부여한 Weighted Soft Voting을 사�
       <td colspan="8" align="center">. . .</td>
     </tr>
     <tr>
-      <td align="center">#999</td>
+      <td align="center">#99</td>
       <td align="center">20260204</td>
       <td>MaxViT+ConvNeXt</td>
       <td>Ensemble</td>
