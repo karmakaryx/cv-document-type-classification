@@ -1,4 +1,4 @@
-# **[Computer Vision] Document Type Classification**
+![banner_cv](./assets/banner_cv.jpg)
 
 ## **💻 Project Overview**
 ### Environment
@@ -28,6 +28,10 @@
 <br>
 
 ## **📋 Competition Info**
+### 일정 (Timeline)
+- 2026.01.23 09:00 ~ 2026.02.04 18:00 (Competition)
+- 2026.02.05 15:00 ~ 2026.02.05 17:00 (Seminar)
+
 ### 문서타입분류대회로 총17종의 이미지데이터를 클래스별로 분류한다.
 - 계좌번호, 자동차 번호판, 자동차 계기판, 진료비영수증, 여권, 운전면허증
 - 주민등록증, 자동차 등록증, 약제비 영수증, 처방전, 통원/진료 확인서, 입퇴원 확인서
@@ -79,7 +83,7 @@
 
 <br>
 
-## **💾 Data Descrption**
+## **💾 Data Description**
 ### Confusion Matrix
 ![Confusion Matrix](./assets/cm.png)
 
