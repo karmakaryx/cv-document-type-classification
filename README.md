@@ -10,7 +10,7 @@
 - **CUDA Version:** 12.2 (Runtime: 11.8)
 - **Tool:** VS Code (SSH), Google Colab
 - **Language:** Python 3.10.13
-- **Prerequisites:** GUI 및 그래픽 관련 시스템 라이브러리가 생략된 경량 Linux인 경우, opencv-python 실행 위해 시스템 패키지 설치 필요
+- **Prerequisites:** GUI 및 그래픽 라이브러리가 생략된 경량 Linux는 OpenCV 실행 위해 시스템 패키지 설치 필요
 ```bash
 apt update && apt install -y libgl1-mesa-glx libglib2.0-0 libsm6 libxrender1 libxext6
 ```
@@ -71,9 +71,10 @@ python-dotenv==1.2.1
 
 #### 2. Qualitative Glimpse
 > 훈련데이터는 clean, 평가데이터는 noisy<br>
+> 훈련데이터는 문서 전체가 정상적으로 찍혀있으나 평가데이터는 일부가 잘려 데이터가 손실된 케이스 많음<br>
 > 계좌번호, 자동차 번호판, 자동차 계기판: 사진 형태<br>
 > 여권, 운전면허증, 주민등록증, 자동차 등록증: 텍스트가 소량 있는 사진 형태<br>
-> 약제비 영수증, 처방전, 통원/진료 확인서, 입퇴원 확인서, 진단서, 진료비 납입 확인서, 이력서, 소견서, 건강보험 임신출산 진료비 지급 신청서: 스캔형 문서 형태
+> 약제비 영수증, 처방전, 통원/진료 확인서, 입퇴원 확인서, 진단서, 진료비 납입 확인서, 이력서, 소견서, 건강보험 임신출산 진료비 지급 신청서: 스캔형 문서 형태로 텍스트 작고 많음
 
 #### 3. Class Label Distribution
 > 클래스마다 대부분 이미지 100장씩 동일하게 분포되어 있으나 #1, #13, #14 클래스는 장수 미달<br>
@@ -83,12 +84,16 @@ python-dotenv==1.2.1
 ![eda_class](./assets/eda_class.png)
 
 #### 4. Image Size Distribution
-> 가로 범위: 384 ~ 753 (평균: 497.6)<br>
-> 세로 범위: 348 ~ 682 (평균: 538.2)
+> 가로 범위: 384px ~ 753px (평균: 497.6px)<br>
+> 세로 범위: 348px ~ 682px (평균: 538.2px)
 ![eda_size](./assets/eda_size.png)
 
-#### 5. Confusion Matrix (V4 실험 결과로 중간 점검)
-> #3, #7, #4, #14 클래스가 평균적으로 오탐지 빈도가 가장 높음
+#### 5. Image File Size Distribution
+> 훈련 이미지: 최소 25KB ~ 최대 164KB<br>
+> 평가 이미지: 최소 25KB ~ 최대 149KB
+
+#### 6. Confusion Matrix (V4 실험 결과로 중간 점검)
+> 평균적으로 #3, #7, #4, #14 클래스가 오탐지 빈도 가장 높음
 ![eda_cm](./assets/eda_cm.png)
 
 ### Data Preprocessing
@@ -100,10 +105,18 @@ python-dotenv==1.2.1
 - 기본 100장보다도 더 모자란 3개 클래스는 oversampling으로 다른 클래스들과 키를 맞춘다.<br>
 그 후 특히 혼동되는 클래스들은 따로 골라 추가 oversampling하고 가중치를 더 강하게 준다.
 
-- 이미지들의 사이즈가 너무 작으면 식별이 어려우므로 최대한 키우고 싶었으나 그러면 소요되는 GPU 메모리 용량과 학습시간을 감당할 수 없다. 모델들의 특성과 스펙을 꼼꼼하게 점검한 후 일괄 512px로 결정하고 같은 모델 내에서도 512에 적합한 버전을 골랐다.
+- 이미지 사이즈가 너무 작으면 식별이 어려우므로 최대한 키우고 싶었으나 그러면 소요되는 GPU 메모리 용량과 훈련시간을 감당할 수 없다. 모델들의 특성과 스펙을 꼼꼼하게 점검한 후 일괄 512px로 결정하고 같은 모델 내에서도 512에 적합한 버전을 골랐다.
 
 - 평가데이터는 노이즈와 반전, 회전, 크롭, 마스킹 등으로 가득차 있다. 따라서 가장 난이도가 높은 #3 입퇴원확인서, #7 통원진료확인서, #4 진단서, #14 소견서만 전문적으로 식별하기 위해 마련된 일명 지옥의 노이즈 좀비 잡는 특공대를 마련. 이 특공대는 원본, 메인 모델의 증강본 외에 극악의 3단계 매운맛 노이즈 증강본이 존재한다.<br>
 다뤄야 하는 클래스 수가 줄었으니 가중치, 오버샘플링도 더 세게. 이 4개 클래스만 뽑아 relabeling한 뒤 최종 결과물에 inverse mapping을 적용하여 메인모델과 cascade하고 이를 ensemble에 적용하여 최종 결과를 도출하는 방식이다.
+
+- **Augmentation 전략 (Albumentations vs Augraphy)**<br>
+평가 데이터의 현실적인 문서 오염을 모방하기 위해 일반 이미지 증강과 문서 특화 증강을 차별화하여 적용
+
+  | 라이브러리 | 작동 방식 및 특징 | 주요 적용 효과 |
+  | :--- | :--- | :--- |
+  | **Albumentations** | 이미지 전체 픽셀을 수학적으로 변환 (기하학적/광학적 접근) | `RandomRotate90`, `Crop`, `Brightness` |
+  | **Augraphy** | 문서를 Ink(글씨)와 Paper로 분리 후 물리적 노화 시뮬레이션 | `InkBleed`(잉크번짐), `DirtyRollers`(롤러자국) |
 
 ---
 
@@ -149,6 +162,7 @@ python-dotenv==1.2.1
 ---
 
 ## **📊 Experiment Logger**
+> 리더보드 총 36회나 제출한 관계로 일부 건만 기재
 <table>
   <thead>
     <tr>
@@ -168,19 +182,28 @@ python-dotenv==1.2.1
       <td>MaxViT+ConvNeXt</td>
       <td>Ensemble</td>
       <td>Augraphy</td>
-      <td align="center"></td>
+      <td align="center">0.9783</td>
       <td align="center"><b>0.9742</b></td>
     </tr>
     <tr>
-      <td colspan="7" align="center">. . .</td>
+      <td align="center">30</td>
+      <td align="center">20260201</td>
+      <td>ConvNeXt+DeiT</td>
+      <td>Stratified K-Fold</td>
+      <td>Augraphy</td>
+      <td align="center">0.9721</td>
+      <td align="center"><b>0.9555</b></td>
+    </tr>
+    <tr>
+      <td colspan="7" align="center">이후 실험 로그 기록할 시간도 없이 시간에 쫓김!😵‍💫 내가 한 짓은 W&B가 알고 있다..ㅎㅎ</td>
     </tr>
     <tr>
       <td align="center">14</td>
       <td align="center">20260126</td>
-      <td></td>
+      <td>ConvNeXt-Base</td>
       <td>TTA</td>
       <td>Crop</td>
-      <td align="center"></td>
+      <td align="center">0.9289</td>
       <td align="center"><b>0.9049</b></td>
     </tr>
     <tr>
@@ -189,7 +212,7 @@ python-dotenv==1.2.1
       <td>ConvNeXt-Base</td>
       <td></td>
       <td>RandomRotate90</td>
-      <td align="center"></td>
+      <td align="center">0.9416</td>
       <td align="center"><b>0.8678</b></td>
     </tr>
     <tr>
@@ -198,7 +221,7 @@ python-dotenv==1.2.1
       <td>Swin-Base 384</td>
       <td>Oversampling</td>
       <td>Resize, Padding</td>
-      <td align="center"></td>
+      <td align="center">0.9390</td>
       <td align="center"><b>0.8047</b></td>
     </tr>
     <tr>
@@ -207,7 +230,7 @@ python-dotenv==1.2.1
       <td>Swin-Large 384</td>
       <td>Mixup, TTA</td>
       <td></td>
-      <td align="center"></td>
+      <td align="center">0.8641</td>
       <td align="center"><b>0.7133</b></td>
     </tr>
     <tr>
@@ -216,7 +239,7 @@ python-dotenv==1.2.1
       <td>Swin-Base 384</td>
       <td>Stratified 5-Fold</td>
       <td>Flip, Noise</td>
-      <td align="center"></td>
+      <td align="center">0.9435</td>
       <td align="center"><b>0.8105</b></td>
     </tr>
     <tr>
@@ -225,7 +248,7 @@ python-dotenv==1.2.1
       <td>EfficientNet-B3</td>
       <td>검증셋 분리</td>
       <td>Brightness, Rotation</td>
-      <td align="center"></td>
+      <td align="center">0.8651</td>
       <td align="center"><b>0.5070</b></td>
     </tr>
     <tr>
@@ -233,7 +256,7 @@ python-dotenv==1.2.1
       <td align="center">20260123</td>
       <td>ResNet50</td>
       <td>Baseline Code</td>
-      <td></td>
+      <td>N/A</td>
       <td align="center">0.8264</td>
       <td align="center"><b>0.4195</b></td>
     </tr>
@@ -252,12 +275,17 @@ python-dotenv==1.2.1
 - **Version:** V6 (MaxViT & ConvNeXt Ensemble)
 - **Training Time:** 17h 21m (MaxViT 기준)
 - **Time per Epoch:** 14m 40s (MaxViT 기준)
-- **Accuracy (Public / Private):** 0.9742 / 0.9634
+- **Accuracy (Public):** 0.9742
+- **Accuracy (Private):** 0.9638 (unselected)
 
 ### Leaderboard Rank: No. 1 🏆 [mid F1: 0.9742 / final F1: 0.9634]
 ![submission](./assets/submission.png)
+![leaderboard](./assets/leaderboard.png)
 ![leaderboard_mid](./assets/leaderboard_mid.png)
 ![leaderboard_final](./assets/leaderboard_final.png)
+
+### Presentation
+- [[PDF] CV Seminar Presentation](./assets/seminar_cv.pdf)
 
 ---
 
@@ -299,15 +327,76 @@ python-dotenv==1.2.1
 
 ### V6: MaxViT & ConvNeXt Ensemble
 - Augraphy 적용
-- 7,3,4,14 클래스에 특화되고 추가 노이즈 증강본이 적용된 스페셜 코드 작성
+- #7, #3, #4, #14 클래스에 특화되고 추가 노이즈 증강본이 적용된 스페셜 코드 작성
 - 별도 스페셜 코드를 ConvNeXt와 cascade
 - cascade한 ConvNeXt를 MaxViT와 앙상블 (Weighted Soft Voting)
 
 ---
 
 ## **⚙️ Components**
-### Pipeline
-![pipeline](./assets/pipeline.png)
+### Pipeline (using Mermaid Markdown)
+```mermaid
+graph TD
+    %% 스타일 정의
+    classDef input fill:#e1f5fe,stroke:#01579b,stroke-width:2px,color:#111111;
+    classDef process fill:#fff9c4,stroke:#fbc02d,stroke-width:2px,color:#111111;
+    classDef model fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px,color:#111111;
+    classDef output fill:#ffebee,stroke:#c62828,stroke-width:2px,color:#111111;
+
+    %% 1. Input Stage
+    TRAIN_DATA[Train CSV / Images]:::input
+    TEST_DATA[Test CSV / Images]:::input
+
+    %% 2. Data Prep
+    OVERSAMPLE[Stratified 5-Fold & Oversampling]:::process
+
+    %% 3. Augmentations
+    subgraph Augmentations [Data Transforms]
+        BASE_TF[Base & Val Transform]:::process
+        AUG_TF[Augraphy Pipeline]:::process
+        HELL_TF["Extreme Transform (For Cascade)"]:::process
+    end
+
+    %% 4. Models
+    subgraph Models [Model Zoo]
+        M_MAIN["Main Ensemble Models<br>- ConvNeXt Base<br>- DeiT III Base<br>- MaxViT Base"]:::model
+        M_CASC["Cascade Specialist Model<br>- ConvNeXt V2 (Classes 3,4,7,14)"]:::model
+    end
+
+    %% 5. Inference
+    TTA_RUN[8-Way TTA & Snapshot Ensemble]:::process
+    SOFTMAX[Softmax & Weighted Avg Ensemble]:::process
+
+    %% 6. Cascade Gate
+    CASCADE_DECISION{"Is Primary Prediction<br>in Classes 3, 4, 7, 14?"}:::output
+    RUN_CASCADE[Apply Cascade Model Prediction]:::output
+    FINAL_ARGMAX[Final Argmax Label]:::output
+    SUBMISSION[Final Submission CSV]:::input
+
+    %% --- 흐름 연결 ---
+    TRAIN_DATA --> OVERSAMPLE
+
+    OVERSAMPLE --> BASE_TF
+    OVERSAMPLE --> AUG_TF
+    OVERSAMPLE --> HELL_TF
+
+    BASE_TF & AUG_TF --> M_MAIN
+    HELL_TF --> M_CASC
+
+    TEST_DATA --> TTA_RUN
+    M_MAIN --> TTA_RUN
+
+    TTA_RUN --> SOFTMAX
+    SOFTMAX --> CASCADE_DECISION
+
+    CASCADE_DECISION -- Yes --> RUN_CASCADE
+    M_CASC -. Cascade Feed .-> RUN_CASCADE
+
+    RUN_CASCADE --> FINAL_ARGMAX
+    CASCADE_DECISION -- No --> FINAL_ARGMAX
+
+    FINAL_ARGMAX --> SUBMISSION
+```
 
 ### Directory
 ```
@@ -325,14 +414,14 @@ python-dotenv==1.2.1
 │   ├── snapshot_conv.py       # snapshot 실수 복원
 │   └── snapshot_convspec.py   # 실패한 fold 제외 후 재실험
 ├── data/                      # (GitHub 관리 제외)
-│   ├── checkpoints/...        # 모델 가중치 저장
-│   ├── confusionmatrix/...    # fold별 Confusion Matrix 파일
 │   ├── test/...               # test images
 │   ├── train/...              # train images
 │   ├── meta.csv               # class mapping info
 │   ├── sample_submission.csv  # 0으로 초기화된 제출파일 template
 │   └── train.csv              # train mapping info
 ├── output/                    # (GitHub 관리 제외)
+│   ├── checkpoints/...        # 모델 가중치 저장
+│   ├── confusionmatrix/...    # fold별 Confusion Matrix 파일
 │   └── submission.csv         # 제출파일 생성
 ├── wandb/...                  # W&B log (GitHub 관리 제외)
 ├── .env.example               # 경로설정 template
@@ -352,14 +441,14 @@ python-dotenv==1.2.1
 
 ### Role & Project Management
 - **역할:** 팀장 (Project Lead) & Main System Architect
-- **협업방식:** Slack 채널 중심의 일정 관리 및 의견 공유, 대회이므로 각자 개발하여 리더보드 제출 (최소 제출 횟수 의무화)
+- **협업방식:** Slack 채널 중심의 일정 관리 및 의견 공유. 대회이므로 각자 개발하여 리더보드 제출 (최소 제출 횟수 의무화)
 - **기여도 (90%):** 프로젝트 일정 관리, End-to-End 파이프라인 설계, 단독 개발 및 실험, Git 구축, 최종 산출물 작성 (팀원은 데이터 시각화 지원), 세미나 발표
 - **Strategy:** 이전 대회에서 모호한 R&R(팀장 없음)과 소통 부재로 인해 홀로 프로젝트를 전담해야 했던 리스크를 경험. 이번 대회에서는 팀장으로서 명확한 방향성을 제시하고 팀 내 발생 가능한 리스크를 선제적으로 예방할 필요성을 느낌. 팀원들에게 부담을 주지 않으면서도 최소한의 참여를 보장할 수 있도록, "리더보드 의무 제출 각자 3회 이상"이라는 구체적인 가이드라인을 제시하고 합의를 이끌어냄.<br>
 End-to-End 파이프라인 구조 설계, 데이터 전처리, 모델 실험 및 검증 등 핵심 개발 과정을 주도하여 안정적인 대회 1위 달성.<br>
 팀원들이 효율적으로 기여할 수 있는 태스크(산출물 시각화 협조)를 배분하고 취합하여 세미나 발표까지 성공적으로 마무리.
 
 ### Project Retrospective
-개발이 진행되면서 훈련 시간이 천문학적으로 늘며 CODE>WAIT>CODE>쪽잠>REPEAT의 반복이었던 2주였습니다. 특히 14시간짜리 실험이 대실패로 끝나거나, 학습 도중 0.01대의 괴랄한 F1로 모델이 폭주해버려 성공한 fold만 일부 수습해서 재실험을 시도한다거나, 엄청난 기대를 걸었던 3,7 클래스 귀신잡는 특공대가 의외로 하찮은 성과를 내거나, 온갖 시행착오를 겪으며 실전감각을 몸으로 익히는게 자학적으로(ㅠㅠ) 즐거웠습니다.<br>
+개발이 진행되면서 훈련 시간이 천문학적으로 늘며 CODE>WAIT>CODE>쪽잠>REPEAT의 반복이었던 2주였습니다. 특히 14시간짜리 실험이 대실패로 끝나거나, 학습 도중 0.01대의 괴랄한 F1로 모델이 폭주해버려 성공한 fold만 일부 수습해서 재실험을 시도한다거나, 엄청난 기대를 걸었던 #3, #7 클래스 귀신잡는 특공대가 의외로 하찮은 성과를 내거나, 온갖 시행착오를 겪으며 실전감각을 몸으로 익히는게 자학적으로(ㅠㅠ) 즐거웠습니다.<br>
 특정 클래스의 가중치를 한 스푼만 높여도, 앙상블 도중 한쪽의 soft voting 비율을 1%만 낮춰도 개복치 같은 리더보드에 배신당하기를 반복하며 내가 베이킹을 하는건지 AI 개발을 하는건지 현타가 올 때도 있었지만, OCD 성향을 살려 데이터를 집요하게 비교분석하고 클래스별로 약점을 핀셋 공략해 결국 제 가설이 성공으로 입증되는 과정은 꽤 뿌듯했습니다.
 
 <br>
