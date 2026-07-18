@@ -1,5 +1,10 @@
 ![banner_cv](./assets/banner_cv.jpg)
 
+**🚨 과거 코드의 일관성을 개선하기 위한 refactoring 진행**<br>
+**🚨 cutoff 비교용으로 main branch와 merge하지 않고 PR 유지**
+
+---
+
 ## **💻 Project Overview**
 ### Environment
 - **OS:** Linux Ubuntu 20.04.6 LTS
