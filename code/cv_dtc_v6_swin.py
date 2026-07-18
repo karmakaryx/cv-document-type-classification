@@ -27,43 +27,41 @@ from tqdm import tqdm
 
 # 경로 설정
 load_dotenv()
-DATA_PATH = os.getenv('DATA_PATH')
-if not DATA_PATH:
-    raise ValueError('DATA_PATH 환경변수가 설정되지 않았습니다.')
+DATA_PATH = os.getenv("DATA_PATH")
+OUTPUT_PATH = os.getenv("OUTPUT_PATH")
 
-TRAIN_CSV = os.path.join(DATA_PATH, 'train.csv')
-TRAIN_DIR = os.path.join(DATA_PATH, 'train')
-TEST_CSV = os.path.join(DATA_PATH, 'sample_submission.csv')
-TEST_DIR = os.path.join(DATA_PATH, 'test')
+TRAIN_CSV = os.path.join(DATA_PATH, "train.csv")
+TRAIN_DIR = os.path.join(DATA_PATH, "train")
+TEST_CSV = os.path.join(DATA_PATH, "sample_submission.csv")
+TEST_DIR = os.path.join(DATA_PATH, "test")
 
 # 시드 고정
 SEED = 28
-os.environ['PYTHONHASHSEED'] = str(SEED)
+os.environ["PYTHONHASHSEED"] = str(SEED)
 random.seed(SEED)
 np.random.seed(SEED)
 torch.manual_seed(SEED)
 torch.cuda.manual_seed(SEED)
 torch.cuda.manual_seed_all(SEED)
-torch.backends.cudnn.deterministic = True  #CuDNN 결정론적 연산 설정 추가
+torch.backends.cudnn.deterministic = True
 torch.backends.cudnn.benchmark = False
 
 # 데이터셋 클래스 정의
 class ImageDataset(Dataset):
     def __init__(self, data, path, transform=None):
-        # data: csv 경로(str | os.PathLike) 또는 pandas.DataFrame
         if isinstance(data, (str, os.PathLike)):
             df = pd.read_csv(data)
         elif isinstance(data, pd.DataFrame):
             df = data.copy()
         else:
-            raise TypeError('data는 csv 경로 또는 pandas.DataFrame 이어야 합니다.')
+            raise TypeError("data는 csv 경로 또는 pandas.DataFrame 이어야 합니다.")
 
-        if 'ID' not in df.columns or 'target' not in df.columns:
-            raise ValueError('입력 데이터는 ID, target 컬럼을 포함해야 합니다.')
+        if "ID" not in df.columns or "target" not in df.columns:
+            raise ValueError("입력 데이터는 ID, target 컬럼을 포함해야 합니다.")
 
         self.df = df.reset_index(drop=True)
-        self.id = self.df['ID'].tolist()
-        self.target = self.df['target'].fillna(0).astype(int).tolist()
+        self.id = self.df["ID"].tolist()
+        self.target = self.df["target"].fillna(0).astype(int).tolist()
         self.path = path
         self.transform = transform
 
@@ -75,7 +73,7 @@ class ImageDataset(Dataset):
         target = self.target[idx]
         img = np.array(Image.open(os.path.join(self.path, name)))
         if self.transform:
-            img = self.transform(image=img)['image']
+            img = self.transform(image=img)["image"]
         return img, target
 
 # one epoch 학습을 위한 함수
@@ -103,16 +101,16 @@ def train_one_epoch(loader, model, optimizer, loss_fn, device, scheduler=None, e
         pred_list.extend(pred.argmax(dim=1).detach().cpu().numpy())
         target_list.extend(target.detach().cpu().numpy())
 
-        pbar.set_description(f'Loss: {loss.item():.4f}')
+        pbar.set_description(f"Loss: {loss.item():.4f}")
 
     train_loss /= len(loader)
     train_acc = accuracy_score(target_list, pred_list)
-    train_f1 = f1_score(target_list, pred_list, average='macro')
+    train_f1 = f1_score(target_list, pred_list, average="macro")
 
     ret = {
-        'train_loss': train_loss,
-        'train_acc': train_acc,
-        'train_f1': train_f1,
+        "train_loss": train_loss,
+        "train_acc": train_acc,
+        "train_f1": train_f1,
     }
 
     return ret
@@ -125,7 +123,7 @@ def validate_one_epoch(loader, model, loss_fn, device):
     target_list = []
 
     with torch.no_grad():
-        for image, target in tqdm(loader, desc='Validating'):
+        for image, target in tqdm(loader, desc="Validating"):
             image = image.to(device)
             target = target.to(device)
 
@@ -138,16 +136,16 @@ def validate_one_epoch(loader, model, loss_fn, device):
 
     val_loss /= len(loader)
     val_acc = accuracy_score(target_list, pred_list)
-    val_f1 = f1_score(target_list, pred_list, average='macro')
+    val_f1 = f1_score(target_list, pred_list, average="macro")
     cm = confusion_matrix(target_list, pred_list)
 
     ret = {
-        'val_loss': val_loss,
-        'val_acc': val_acc,
-        'val_f1': val_f1,
-        'confusion_matrix': cm,
-        'pred_list': pred_list,
-        'target_list': target_list,
+        "val_loss": val_loss,
+        "val_acc": val_acc,
+        "val_f1": val_f1,
+        "confusion_matrix": cm,
+        "pred_list": pred_list,
+        "target_list": target_list,
     }
 
     return ret
@@ -158,7 +156,7 @@ def predict_proba(loader, model, device):
     probs_list = []
 
     with torch.no_grad():
-        for image, _ in tqdm(loader, desc='Infer with 8-Way TTA'):
+        for image, _ in tqdm(loader, desc="infer with 8-Way TTA"):
             image = image.to(device)
             batch_probs = []
 
@@ -183,42 +181,42 @@ def predict_proba(loader, model, device):
 
 def save_checkpoint(path, model, epoch, metric_name, metric_value, extra=None):
     ckpt = {
-        'model_state_dict': model.state_dict(),
-        'epoch': epoch,
-        'metric_name': metric_name,
-        'metric_value': float(metric_value),
+        "model_state_dict": model.state_dict(),
+        "epoch": epoch,
+        "metric_name": metric_name,
+        "metric_value": float(metric_value),
     }
     if extra:
-        ckpt['extra'] = extra
+        ckpt["extra"] = extra
     torch.save(ckpt, path)
 
 def load_checkpoint(path, model, device):
     ckpt = torch.load(path, map_location=device)
-    model.load_state_dict(ckpt['model_state_dict'])
+    model.load_state_dict(ckpt["model_state_dict"])
     return ckpt
 
 # Confusion Matrix 시각화 함수
-def plot_confusion_matrix(cm, class_names=None, title='Confusion Matrix', save_path=None, normalize=False):
+def plot_confusion_matrix(cm, class_names=None, title="Confusion Matrix", save_path=None, normalize=False):
     if normalize:
-        cm = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-        fmt = '.2f'
-        label = 'Normalized Confusion Matrix'
+        cm = cm.astype("float") / cm.sum(axis=1)[:, np.newaxis]
+        fmt = ".2f"
+        label = "Normalized Confusion Matrix"
     else:
-        fmt = 'd'
-        label = 'Confusion Matrix'
+        fmt = "d"
+        label = "Confusion Matrix"
 
     plt.figure(figsize=(12, 10))
-    sns.heatmap(cm, annot=True, fmt=fmt, cmap='Blues',
+    sns.heatmap(cm, annot=True, fmt=fmt, cmap="Blues",
                 xticklabels=class_names, yticklabels=class_names,
-                cbar_kws={'label': 'Count' if not normalize else 'Proportion'})
-    plt.title(title, fontsize=16, fontweight='bold', pad=20)
-    plt.ylabel('True Label', fontsize=12)
-    plt.xlabel('Predicted Label', fontsize=12)
+                cbar_kws={"label": "Count" if not normalize else "Proportion"})
+    plt.title(title, fontsize=16, fontweight="bold", pad=20)
+    plt.ylabel("True Label", fontsize=12)
+    plt.xlabel("Predicted Label", fontsize=12)
     plt.tight_layout()
 
     if save_path:
-        plt.savefig(save_path, dpi=300, bbox_inches='tight')
-        print(f'Confusion Matrix saved to: {save_path}')
+        plt.savefig(save_path, dpi=300, bbox_inches="tight")
+        print(f"Confusion Matrix saved to: {save_path}")
 
     return plt.gcf()
 
@@ -226,16 +224,15 @@ def plot_confusion_matrix(cm, class_names=None, title='Confusion Matrix', save_p
 def apply_augraphy(image, **kwargs):
     data = augraphy_pipeline(image)
     if isinstance(data, dict):
-        return data['output']
+        return data["output"]
     return data
 
 
-### 2. Hyper-parameters ###
-# device
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+### 2. Hyperparameters ###
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # model config
-model_name = 'swinv2_base_window12to16_192to256.ms_in22k_ft_in1k'
+model_name = "swinv2_base_window12to16_192to256.ms_in22k_ft_in1k"
 
 # training config
 IMG_SIZE = 512
@@ -245,11 +242,11 @@ BATCH_SIZE = 8
 NUM_WORKERS = 32
 
 # 운영 옵션
-N_SPLITS = 5                    #k-fold 개수
-EARLY_STOPPING_PATIENCE = 5     #val_f1이 개선되지 않으면 중단할 epoch 수
-EARLY_STOPPING_MIN_DELTA = 0.0  #개선으로 인정할 최소 증가량
-CHECKPOINT_DIR = os.path.join(DATA_PATH, 'checkpoints_swin')
-CM_SAVE_DIR = os.path.join(DATA_PATH, 'confusionmatrix_swin')
+N_SPLITS = 5                    # k-fold 개수
+EARLY_STOPPING_PATIENCE = 5     # val_f1이 개선되지 않으면 중단할 epoch 수
+EARLY_STOPPING_MIN_DELTA = 0.0  # 개선으로 인정할 최소 증가량
+CHECKPOINT_DIR = os.path.join(OUTPUT_PATH, "checkpoints_swin")
+CM_SAVE_DIR = os.path.join(OUTPUT_PATH, "confusionmatrix_swin")
 
 
 ### 3. Load Data ###
@@ -258,17 +255,17 @@ augraphy_pipeline = augraphy.AugraphyPipeline([
         n_points_range=(500, 800),
         n_horizontal_points_range=(50, 80),
         n_vertical_points_range=(50, 80),
-        noise_type='gauss',
-        p=0.5
+        noise_type="gauss",
+        p=0.5,
     ),
     InkBleed(
         intensity_range=(0.1, 0.2),
-        p=0.5
+        p=0.5,
     ),
     BrightnessTexturize(
         texturize_range=(0.9, 1.1),
         deviation=0.03,
-        p=0.5
+        p=0.5,
     ),
 ])
 
@@ -297,11 +294,11 @@ trn_transform = A.Compose([
         width=IMG_SIZE,
         scale=(0.9, 1.0),
         ratio=(1.0, 1.0),
-        p=0.3
+        p=0.3,
     ),
 
     # Augraphy
-    A.Lambda(name='AugraphyEffect', image=apply_augraphy, p=0.4),
+    A.Lambda(name="AugraphyEffect", image=apply_augraphy, p=0.4),
 
     # 채도 및 색상 파괴
     A.OneOf([
@@ -368,21 +365,19 @@ os.makedirs(CM_SAVE_DIR, exist_ok=True)
 weights = torch.ones(17).to(device)
 
 # Confusion Matrix에서 많이 틀린 클래스들에 벌점 추가
-weights[7] = 2.0   #통원진료확인서
-weights[3] = 2.0   #입퇴원확인서
-weights[4] = 1.7   #진단서
-weights[14] = 1.6  #소견서
-weights[12] = 1.4  #처방전
-weights[13] = 1.4  #이력서
-weights[10] = 1.2  #진료비납입확인서
-weights[15] = 1.2  #자동차등록증
-weights[6] = 1.2   #진료비영수증
-weights[11] = 1.2  #약제비영수증
-weights[0] = 1.1   #계좌번호
+weights[7] = 2.0   # 통원진료확인서
+weights[3] = 2.0   # 입퇴원확인서
+weights[4] = 1.7   # 진단서
+weights[14] = 1.6  # 소견서
+weights[12] = 1.4  # 처방전
+weights[13] = 1.4  # 이력서
+weights[10] = 1.2  # 진료비납입확인서
+weights[15] = 1.2  # 자동차등록증
+weights[6] = 1.2   # 진료비영수증
+weights[11] = 1.2  # 약제비영수증
+weights[0] = 1.1   # 계좌번호
 
-# 가중치가 적용된 Loss Function 선언
 loss_fn = nn.CrossEntropyLoss(weight=weights, label_smoothing=0.1)
-
 torch.cuda.empty_cache()
 
 # 클래스 이름 정의 (17개 클래스)
@@ -406,31 +401,30 @@ class_names = [
     "vehicle_registration_plate"                              #16
 ]
 
-# WandB 초기화 (wandb login)
-now = datetime.datetime.now().strftime('%m%d_%H%M')
+now = datetime.datetime.now().strftime("%m%d_%H%M")
 try:
     wandb.init(
-        project='cv-document-classifier',
-        name=f'V6_{model_name}_{now}',
+        project="cv-document-type-classification",
+        name=f"V6_{model_name}_{now}",
         config={
-            'model_name': model_name,
-            'img_size': IMG_SIZE,
-            'lr': LR,
-            'epochs': EPOCHS,
-            'batch_size': BATCH_SIZE,
-            'num_workers': NUM_WORKERS,
-            'n_splits': N_SPLITS,
-            'early_stopping_patience': EARLY_STOPPING_PATIENCE,
-            'early_stopping_min_delta': EARLY_STOPPING_MIN_DELTA,
-            'seed': SEED,
-            'label_smoothing': 0.1,
-            'weight_decay': 1e-2,
-            'drop_path_rate': 0.1,
+            "model_name": model_name,
+            "img_size": IMG_SIZE,
+            "lr": LR,
+            "epochs": EPOCHS,
+            "batch_size": BATCH_SIZE,
+            "num_workers": NUM_WORKERS,
+            "n_splits": N_SPLITS,
+            "early_stopping_patience": EARLY_STOPPING_PATIENCE,
+            "early_stopping_min_delta": EARLY_STOPPING_MIN_DELTA,
+            "seed": SEED,
+            "label_smoothing": 0.1,
+            "weight_decay": 1e-2,
+            "drop_path_rate": 0.1,
         }
     )
     wandb_enabled = True
 except Exception as e:
-    print(f'WandB 초기화 실패: {e}')
+    print(f"W&B 초기화 실패: {e}")
     wandb_enabled = False
 
 pred_list = []
@@ -438,8 +432,8 @@ skf = StratifiedKFold(n_splits=N_SPLITS, shuffle=True, random_state=SEED)
 fold_best_scores = []
 test_probs_sum = None
 
-for fold, (tr_idx, va_idx) in enumerate(skf.split(train_df['ID'], train_df['target'])):
-    print(f'\n========== Fold {fold + 1}/{N_SPLITS} ==========')
+for fold, (tr_idx, va_idx) in enumerate(skf.split(train_df["ID"], train_df["target"])):
+    print(f"\n========== FOLD {fold + 1}/{N_SPLITS} ==========")
     fold_train_df = train_df.iloc[tr_idx].reset_index(drop=True)
     fold_val_df = train_df.iloc[va_idx].reset_index(drop=True)
 
@@ -453,7 +447,7 @@ for fold, (tr_idx, va_idx) in enumerate(skf.split(train_df['ID'], train_df['targ
 
     new_rows = []
     for target_id, target_max in target_counts.items():
-        target_df = fold_train_df[fold_train_df['target'] == target_id]
+        target_df = fold_train_df[fold_train_df["target"] == target_id]
         current_count = len(target_df)
         add_count = target_max - current_count
         if add_count > 0:
@@ -497,98 +491,96 @@ for fold, (tr_idx, va_idx) in enumerate(skf.split(train_df['ID'], train_df['targ
     scheduler = CosineAnnealingWarmRestarts(optimizer, T_0=5, T_mult=1, eta_min=1e-6)
 
     best_val_f1 = -1.0
-    best_ckpt_path = os.path.join(CHECKPOINT_DIR, f'best_fold{fold}.pt')
+    best_ckpt_path = os.path.join(CHECKPOINT_DIR, f"best_fold{fold}.pt")
     patience = 0
 
     for epoch in range(EPOCHS):
         train_ret = train_one_epoch(trn_loader, model, optimizer, loss_fn, device=device, scheduler=scheduler, epoch=epoch)
         val_ret = validate_one_epoch(val_loader, model, loss_fn, device=device)
-        ret = {**train_ret, **val_ret, 'epoch': epoch}
+        ret = {**train_ret, **val_ret, "epoch": epoch}
 
-        improved = ret['val_f1'] > (best_val_f1 + EARLY_STOPPING_MIN_DELTA)
+        improved = ret["val_f1"] > (best_val_f1 + EARLY_STOPPING_MIN_DELTA)
         if improved:
-            best_val_f1 = ret['val_f1']
+            best_val_f1 = ret["val_f1"]
             patience = 0
-            best_ckpt_path = os.path.join(CHECKPOINT_DIR, f'best_fold{fold}_epoch{epoch}.pt')
-            save_checkpoint(best_ckpt_path, model, epoch, 'val_f1', best_val_f1)
-            print(f'New best model saved at epoch {epoch} (Val F1: {best_val_f1:.4f})')
-            best_tag = ' (best saved)'
+            best_ckpt_path = os.path.join(CHECKPOINT_DIR, f"best_fold{fold}_epoch{epoch}.pt")
+            save_checkpoint(best_ckpt_path, model, epoch, "val_f1", best_val_f1)
+            print(f"New best model saved at epoch {epoch} (Val F1: {best_val_f1:.4f})")
+            best_tag = " (best saved)"
 
             # Best 모델일 때 Confusion Matrix 저장
-            cm_save_path = os.path.join(CM_SAVE_DIR, f'fold_{fold}_epoch_{epoch}_best_cm.png')
+            cm_save_path = os.path.join(CM_SAVE_DIR, f"fold_{fold}_epoch_{epoch}_best_cm.png")
             plot_confusion_matrix(
-                ret['confusion_matrix'],
+                ret["confusion_matrix"],
                 class_names=class_names,
-                title=f'Confusion Matrix - Fold {fold+1}, Epoch {epoch} (Best)',
+                title=f"Confusion Matrix - Fold {fold+1}, Epoch {epoch} (Best)",
                 save_path=cm_save_path,
                 normalize=False,
             )
             plt.close()
         else:
             patience += 1
-            best_tag = ''
+            best_tag = ""
 
         if (epoch + 1) % 5 == 0:
-            snapshot_path = os.path.join(CHECKPOINT_DIR, f'snapshot_fold{fold}_epoch{epoch}.pt')
-            save_checkpoint(snapshot_path, model, epoch, 'val_f1', ret['val_f1'])
-            print(f'Snapshot saved at epoch {epoch} (End of Cycle)')
+            snapshot_path = os.path.join(CHECKPOINT_DIR, f"snapshot_fold{fold}_epoch{epoch}.pt")
+            save_checkpoint(snapshot_path, model, epoch, "val_f1", ret["val_f1"])
+            print(f"Snapshot saved at epoch {epoch} (End of Cycle)")
 
-        log = f'epoch: {epoch}\n'
-        log += f'train_loss: {ret['train_loss']:.4f}\ntrain_acc: {ret['train_acc']:.4f}\ntrain_f1: {ret['train_f1']:.4f}\n'
-        log += f'val_loss: {ret['val_loss']:.4f}\nval_acc: {ret['val_acc']:.4f}\nval_f1: {ret['val_f1']:.4f}{best_tag}\n'
-        log += f'best_val_f1: {best_val_f1:.4f}\npatience: {patience}/{EARLY_STOPPING_PATIENCE}\n'
+        log = f"epoch: {epoch}\n"
+        log += f"train_loss: {ret['train_loss']:.4f}\ntrain_acc: {ret['train_acc']:.4f}\ntrain_f1: {ret['train_f1']:.4f}\n"
+        log += f"val_loss: {ret['val_loss']:.4f}\nval_acc: {ret['val_acc']:.4f}\nval_f1: {ret['val_f1']:.4f}{best_tag}\n"
+        log += f"best_val_f1: {best_val_f1:.4f}\npatience: {patience}/{EARLY_STOPPING_PATIENCE}\n"
         print(log)
 
-        # WandB 로깅 (fold별로 구분)
         if wandb_enabled:
             log_dict = {
-                'fold': fold,
-                'epoch': epoch,
-                f'fold_{fold}/train_loss': ret['train_loss'],
-                f'fold_{fold}/train_acc': ret['train_acc'],
-                f'fold_{fold}/train_f1': ret['train_f1'],
-                f'fold_{fold}/val_loss': ret['val_loss'],
-                f'fold_{fold}/val_acc': ret['val_acc'],
-                f'fold_{fold}/val_f1': ret['val_f1'],
-                f'fold_{fold}/best_val_f1': best_val_f1,
-                f'fold_{fold}/patience': patience,
+                "fold": fold,
+                "epoch": epoch,
+                f"fold_{fold}/train_loss": ret["train_loss"],
+                f"fold_{fold}/train_acc": ret["train_acc"],
+                f"fold_{fold}/train_f1": ret["train_f1"],
+                f"fold_{fold}/val_loss": ret["val_loss"],
+                f"fold_{fold}/val_acc": ret["val_acc"],
+                f"fold_{fold}/val_f1": ret["val_f1"],
+                f"fold_{fold}/best_val_f1": best_val_f1,
+                f"fold_{fold}/patience": patience,
             }
 
-            # Best 모델일 때 WandB에 Confusion Matrix 이미지 로깅
             if improved:
                 cm_fig = plot_confusion_matrix(
-                    ret['confusion_matrix'],
+                    ret["confusion_matrix"],
                     class_names=class_names,
-                    title=f'Confusion Matrix - Fold {fold+1}, Epoch {epoch}',
+                    title=f"Confusion Matrix - Fold {fold+1}, Epoch {epoch}",
                     normalize=False,
                 )
-                log_dict[f'fold_{fold}/confusion_matrix'] = wandb.Image(cm_fig)
+                log_dict[f"fold_{fold}/confusion_matrix"] = wandb.Image(cm_fig)
                 plt.close()
 
             wandb.log(log_dict)
 
         if patience >= EARLY_STOPPING_PATIENCE:
-            print('Early stopping triggered.')
+            print("Early stopping triggered!")
             break
 
     # Best 모델로 최종 검증셋 Confusion Matrix 생성
     final_val_ret = validate_one_epoch(val_loader, model, loss_fn, device=device)
-    final_cm_save_path = os.path.join(CM_SAVE_DIR, f'fold_{fold}_final_cm.png')
+    final_cm_save_path = os.path.join(CM_SAVE_DIR, f"fold_{fold}_final_cm.png")
     plot_confusion_matrix(
-        final_val_ret['confusion_matrix'],
+        final_val_ret["confusion_matrix"],
         class_names=class_names,
-        title=f'Final Confusion Matrix - Fold {fold+1}',
+        title=f"Final Confusion Matrix - Fold {fold+1}",
         save_path=final_cm_save_path,
         normalize=False,
     )
     plt.close()
 
     # 정규화된 Confusion Matrix도 저장
-    final_cm_norm_save_path = os.path.join(CM_SAVE_DIR, f'fold_{fold}_final_cm_normalized.png')
+    final_cm_norm_save_path = os.path.join(CM_SAVE_DIR, f"fold_{fold}_final_cm_normalized.png")
     plot_confusion_matrix(
-        final_val_ret['confusion_matrix'],
+        final_val_ret["confusion_matrix"],
         class_names=class_names,
-        title=f'Normalized Confusion Matrix - Fold {fold+1}',
+        title=f"Normalized Confusion Matrix - Fold {fold+1}",
         save_path=final_cm_norm_save_path,
         normalize=True,
     )
@@ -599,7 +591,7 @@ for fold, (tr_idx, va_idx) in enumerate(skf.split(train_df['ID'], train_df['targ
     fold_best_scores.append(best_val_f1)
 
     # Snapshot Ensemble 준비 (Best 1개 + 최근 Snapshot 2개)
-    snapshot_files = glob.glob(os.path.join(CHECKPOINT_DIR, f'snapshot_fold{fold}_epoch*.pt'))
+    snapshot_files = glob.glob(os.path.join(CHECKPOINT_DIR, f"snapshot_fold{fold}_epoch*.pt"))
     snapshot_files = sorted(snapshot_files, key=lambda x: os.path.getmtime(x), reverse=True)
 
     # 중복 방지를 위해 Best 모델 경로는 제외하고 상위 2개 선택
@@ -608,7 +600,7 @@ for fold, (tr_idx, va_idx) in enumerate(skf.split(train_df['ID'], train_df['targ
         if snap != best_ckpt_path and len(ensemble_targets) < 3:
             ensemble_targets.append(snap)
 
-    print(f'\n[Fold {fold}] Snapshot Ensembling with: {ensemble_targets}')
+    print(f"\n[Fold {fold}] Snapshot Ensembling with: {ensemble_targets}")
 
     fold_probs_list = []
     for ckpt in ensemble_targets:
@@ -623,35 +615,33 @@ for fold, (tr_idx, va_idx) in enumerate(skf.split(train_df['ID'], train_df['targ
     else:
         test_probs_sum += fold_test_probs
 
-    # 메모리 관리 (해당 Fold 리소스 정리)
+    # 메모리 관리 (해당 fold 리소스 정리)
     del model, optimizer, trn_loader, val_loader, trn_dataset, val_dataset
     torch.cuda.empty_cache()
 
-print(f'\nK-Fold best val_f1 per fold: {fold_best_scores}')
-print(f'K-Fold mean best val_f1: {np.mean(fold_best_scores):.4f} ± {np.std(fold_best_scores):.4f}')
+print(f"\nK-Fold best val_f1 per fold: {fold_best_scores}")
+print(f"K-Fold mean best val_f1: {np.mean(fold_best_scores):.4f} ± {np.std(fold_best_scores):.4f}")
 
-# K-Fold 결과 WandB 로깅
 if wandb_enabled:
     wandb.log({
-        'kfold/mean_val_f1': np.mean(fold_best_scores),
-        'kfold/std_val_f1': np.std(fold_best_scores),
+        "kfold/mean_val_f1": np.mean(fold_best_scores),
+        "kfold/std_val_f1": np.std(fold_best_scores),
     })
     for i, score in enumerate(fold_best_scores):
-        wandb.log({f'kfold/fold_{i}_best_val_f1': score})
+        wandb.log({f"kfold/fold_{i}_best_val_f1": score})
 
 test_probs_avg = test_probs_sum / N_SPLITS
 pred_list = test_probs_avg.argmax(axis=1).tolist()
 
-# WandB 종료
 if wandb_enabled:
     wandb.finish()
 
 
 ### 5. Inference & Save File ###
-pred_df = pd.DataFrame({'ID': tst_dataset.id, 'target': pred_list})
+pred_df = pd.DataFrame({"ID": tst_dataset.id, "target": pred_list})
 sample_submission_df = pd.read_csv(TEST_CSV)
-assert (sample_submission_df['ID'] == pred_df['ID']).all()
+assert (sample_submission_df["ID"] == pred_df["ID"]).all()
 
-pred_df.to_csv(f'{DATA_PATH}/output_swin.csv', index=False)
-np.save(f'{DATA_PATH}/probs_swin.npy', test_probs_avg)
+pred_df.to_csv(f"{OUTPUT_PATH}/output_swin.csv", index=False)
+np.save(f"{OUTPUT_PATH}/probs_swin.npy", test_probs_avg)
 print(pred_df.head(10))
