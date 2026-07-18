@@ -2,30 +2,33 @@
 import os
 import random
 
+import albumentations as A
+import numpy as np
+import pandas as pd
 import timm
 import torch
-import albumentations as A
-import pandas as pd
-import numpy as np
 import torch.nn as nn
 from albumentations.pytorch import ToTensorV2
+from dotenv import load_dotenv
+from PIL import Image
+from sklearn.metrics import accuracy_score, f1_score
 from torch.optim import Adam
 from torch.utils.data import Dataset, DataLoader
-from PIL import Image
 from tqdm import tqdm
-from sklearn.metrics import accuracy_score, f1_score
 
 # 경로 설정
-BASE_DATA_PATH = ''
+load_dotenv()
+DATA_PATH = os.getenv("DATA_PATH")
+OUTPUT_PATH = os.getenv("OUTPUT_PATH")
 
-TRAIN_CSV = os.path.join(BASE_DATA_PATH, 'train.csv')
-TRAIN_DIR = os.path.join(BASE_DATA_PATH, 'train')
-TEST_CSV = os.path.join(BASE_DATA_PATH, 'sample_submission.csv')
-TEST_DIR = os.path.join(BASE_DATA_PATH, 'test')
+TRAIN_CSV = os.path.join(DATA_PATH, "train.csv")
+TRAIN_DIR = os.path.join(DATA_PATH, "train")
+TEST_CSV = os.path.join(DATA_PATH, "sample_submission.csv")
+TEST_DIR = os.path.join(DATA_PATH, "test")
 
 # 시드 고정
 SEED = 42
-os.environ['PYTHONHASHSEED'] = str(SEED)
+os.environ["PYTHONHASHSEED"] = str(SEED)
 random.seed(SEED)
 np.random.seed(SEED)
 torch.manual_seed(SEED)
@@ -47,7 +50,7 @@ class ImageDataset(Dataset):
         name, target = self.df[idx]
         img = np.array(Image.open(os.path.join(self.path, name)))
         if self.transform:
-            img = self.transform(image=img)['image']
+            img = self.transform(image=img)["image"]
         return img, target
 
 # one epoch 학습을 위한 함수
@@ -73,30 +76,26 @@ def train_one_epoch(loader, model, optimizer, loss_fn, device):
         preds_list.extend(preds.argmax(dim=1).detach().cpu().numpy())
         targets_list.extend(targets.detach().cpu().numpy())
 
-        pbar.set_description(f'Loss: {loss.item():.4f}')
+        pbar.set_description(f"loss: {loss.item():.4f}")
 
     train_loss /= len(loader)
     train_acc = accuracy_score(targets_list, preds_list)
-    train_f1 = f1_score(targets_list, preds_list, average='macro')
+    train_f1 = f1_score(targets_list, preds_list, average="macro")
 
     ret = {
-        'train_loss': train_loss,
-        'train_acc': train_acc,
-        'train_f1': train_f1,
+        "train_loss": train_loss,
+        "train_acc": train_acc,
+        "train_f1": train_f1,
     }
 
     return ret
 
 
-### 2. Hyper-parameters ###
-# device
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-# data config
-data_path = BASE_DATA_PATH
+### 2. Hyperparameters ###
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # model config
-model_name = 'resnet50'
+model_name = "resnet50"
 
 # training config
 img_size = 384
@@ -128,12 +127,12 @@ tst_transform = A.Compose([
 trn_dataset = ImageDataset(
     TRAIN_CSV,
     TRAIN_DIR,
-    transform=trn_transform
+    transform=trn_transform,
 )
 tst_dataset = ImageDataset(
     TEST_CSV,
     TEST_DIR,
-    transform=tst_transform
+    transform=tst_transform,
 )
 print(len(trn_dataset), len(tst_dataset))
 
@@ -144,34 +143,33 @@ trn_loader = DataLoader(
     shuffle=True,
     num_workers=num_workers,
     pin_memory=True,
-    drop_last=False
+    drop_last=False,
 )
 tst_loader = DataLoader(
     tst_dataset,
     batch_size=BATCH_SIZE,
     shuffle=False,
     num_workers=0,
-    pin_memory=True
+    pin_memory=True,
 )
 
 
 ### 4. Train Model ###
-# load model
 model = timm.create_model(
     model_name,
     pretrained=True,
-    num_classes=17
+    num_classes=17,
 ).to(device)
 loss_fn = nn.CrossEntropyLoss(label_smoothing=0.1)
 optimizer = Adam(model.parameters(), lr=LR)
 
 for epoch in range(EPOCHS):
     ret = train_one_epoch(trn_loader, model, optimizer, loss_fn, device=device)
-    ret['epoch'] = epoch
+    ret["epoch"] = epoch
 
-    log = ''
+    log = ""
     for k, v in ret.items():
-      log += f'{k}: {v:.4f}\n'
+      log += f"{k}: {v:.4f}\n"
     print(log)
 
 
@@ -186,11 +184,11 @@ for image, _ in tqdm(tst_loader):
         preds = model(image)
     preds_list.extend(preds.argmax(dim=1).detach().cpu().numpy())
 
-pred_df = pd.DataFrame(tst_dataset.df, columns=['ID', 'target'])
-pred_df['target'] = preds_list
+pred_df = pd.DataFrame(tst_dataset.df, columns=["ID", "target"])
+pred_df["target"] = preds_list
 
 sample_submission_df = pd.read_csv(TEST_CSV)
-assert (sample_submission_df['ID'] == pred_df['ID']).all()
+assert (sample_submission_df["ID"] == pred_df["ID"]).all()
 
-pred_df.to_csv(f'{BASE_DATA_PATH}/output.csv', index=False)
-pred_df.head()
+pred_df.to_csv(f"{OUTPUT_PATH}/submission.csv", index=False)
+print(pred_df.head())
