@@ -71,16 +71,17 @@ python-dotenv==1.2.1
 ## **💾 Data Description**
 ### EDA (Exploratory Data Analysis)
 #### 1. 이미지 파일 mapping 정보
-> meta.csv: 클래스 인덱스(0~16)와 클래스 이름 사이의 mapping 정보 (target, class_name)<br>
-> train.csv: 훈련 이미지 이름과 클래스 인덱스 사이의 mapping 정보 (ID, target)
+> **meta.csv:** 클래스 인덱스(0~16)와 클래스 이름 사이의 mapping 정보 (target, class_name)<br>
+> **train.csv:** 훈련 이미지 이름과 클래스 인덱스 사이의 mapping 정보 (ID, target)
 
 #### 2. Qualitative Glimpse
-> -훈련데이터는 clean, 평가데이터는 noisy<br>
-> -훈련데이터는 문서 전체가 정상적으로 찍혀있으나 평가데이터는 일부가 잘려 데이터가 손실된 케이스 많음<br>
-> -계좌번호, 자동차 번호판, 자동차 계기판: 사진 형태<br>
-> -여권, 운전면허증, 주민등록증: 텍스트가 소량 있는 사진 형태로 문서 규격 통일<br>
-> -자동차 등록증, 약제비 영수증, 처방전, 통원/진료 확인서, 입퇴원 확인서, 진단서, 진료비 납입 확인서, 이력서, 소견서, 건강보험 임신출산 진료비 지급 신청서: 스캔형 문서 형태로 텍스트 작고 많으며 규격 제각각<br>
-> -평가데이터는 인간이 봐도 식별이 불가능할 정도로 손상 수준이 심각한 문서들이 존재
+> **계좌번호, 자동차 번호판, 자동차 계기판:** 사진 형태<br>
+> **여권, 운전면허증, 주민등록증:** 텍스트가 소량 있는 사진 형태로 문서 규격 통일<br>
+> 나머지는 스캔형 문서 형태로 텍스트 작고 많으며 규격 제각각<br>
+
+> 훈련데이터는 clean, 평가데이터는 noisy<br>
+> 훈련데이터는 문서 전체가 정상적으로 찍혀있으나 평가데이터는 일부가 잘려 데이터가 손실된 케이스 많음<br>
+> 평가데이터는 인간이 봐도 식별이 불가능할 정도로 손상 수준이 심각한 문서들이 존재
 ![eda_test](./assets/eda_test.png)
 
 #### 3. Class Label Distribution
@@ -91,13 +92,13 @@ python-dotenv==1.2.1
 ![eda_class](./assets/eda_class.png)
 
 #### 4. Image Size Distribution
-> 가로 범위: 384px ~ 753px (평균: 497.6px)<br>
-> 세로 범위: 348px ~ 682px (평균: 538.2px)
+> **가로 범위:** 384px ~ 753px (평균: 497.6px)<br>
+> **세로 범위:** 348px ~ 682px (평균: 538.2px)
 ![eda_size](./assets/eda_size.png)
 
 #### 5. Image File Size Distribution
-> 훈련 이미지: 최소 25KB ~ 최대 164KB<br>
-> 평가 이미지: 최소 25KB ~ 최대 149KB
+> **훈련 이미지:** 최소 25KB ~ 최대 164KB<br>
+> **평가 이미지:** 최소 25KB ~ 최대 149KB
 
 #### 6. Confusion Matrix (V4 실험 결과로 중간 점검)
 > 평균적으로 #3, #7, #4, #14 클래스가 오탐지 빈도 가장 높음<br>
