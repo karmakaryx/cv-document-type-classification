@@ -332,7 +332,7 @@ python-dotenv==1.2.1
 - **Accuracy (Public):** 0.9742
 - **Accuracy (Private):** 0.9638 (unselected)
 
-### Leaderboard Rank: No. 1 🏆 [mid F1: 0.9742 / final F1: 0.9634]
+### Leaderboard Rank: No. 1 🏆 [mid: 0.9742 / final: 0.9634]
 ![submission](./assets/submission.png)
 ![leaderboard](./assets/leaderboard.png)
 ![leaderboard_mid](./assets/leaderboard_mid.png)
