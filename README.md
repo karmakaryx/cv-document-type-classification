@@ -1,5 +1,10 @@
 ![banner_cv](./assets/banner_cv.jpg)
 
+**🚨 과거 코드의 일관성을 개선하기 위한 refactoring 진행**<br>
+**🚨 cutoff 비교용으로 main branch와 merge하지 않고 PR 유지**
+
+---
+
 ## **💻 Project Overview**
 ### Environment
 - **OS:** Linux Ubuntu 20.04.6 LTS
@@ -66,16 +71,17 @@ python-dotenv==1.2.1
 ## **💾 Data Description**
 ### EDA (Exploratory Data Analysis)
 #### 1. 이미지 파일 mapping 정보
-> meta.csv: 클래스 인덱스(0~16)와 클래스 이름 사이의 mapping 정보 (target, class_name)<br>
-> train.csv: 훈련 이미지 이름과 클래스 인덱스 사이의 mapping 정보 (ID, target)
+> **meta.csv:** 클래스 인덱스(0~16)와 클래스 이름 사이의 mapping 정보 (target, class_name)<br>
+> **train.csv:** 훈련 이미지 이름과 클래스 인덱스 사이의 mapping 정보 (ID, target)
 
 #### 2. Qualitative Glimpse
-> -훈련데이터는 clean, 평가데이터는 noisy<br>
-> -훈련데이터는 문서 전체가 정상적으로 찍혀있으나 평가데이터는 일부가 잘려 데이터가 손실된 케이스 많음<br>
-> -계좌번호, 자동차 번호판, 자동차 계기판: 사진 형태<br>
-> -여권, 운전면허증, 주민등록증: 텍스트가 소량 있는 사진 형태로 문서 규격 통일<br>
-> -자동차 등록증, 약제비 영수증, 처방전, 통원/진료 확인서, 입퇴원 확인서, 진단서, 진료비 납입 확인서, 이력서, 소견서, 건강보험 임신출산 진료비 지급 신청서: 스캔형 문서 형태로 텍스트 작고 많으며 규격 제각각<br>
-> -평가데이터는 인간이 봐도 식별이 불가능할 정도로 손상 수준이 심각한 문서들이 존재
+> **계좌번호, 자동차 번호판, 자동차 계기판:** 사진 형태<br>
+> **여권, 운전면허증, 주민등록증:** 텍스트가 소량 있는 사진 형태로 문서 규격 통일<br>
+> 나머지는 스캔형 문서 형태로 텍스트 작고 많으며 규격 제각각<br>
+
+> 훈련데이터는 clean, 평가데이터는 noisy<br>
+> 훈련데이터는 문서 전체가 정상적으로 찍혀있으나 평가데이터는 일부가 잘려 데이터가 손실된 케이스 많음<br>
+> 평가데이터는 인간이 봐도 식별이 불가능할 정도로 손상 수준이 심각한 문서들이 존재
 ![eda_test](./assets/eda_test.png)
 
 #### 3. Class Label Distribution
@@ -86,13 +92,13 @@ python-dotenv==1.2.1
 ![eda_class](./assets/eda_class.png)
 
 #### 4. Image Size Distribution
-> 가로 범위: 384px ~ 753px (평균: 497.6px)<br>
-> 세로 범위: 348px ~ 682px (평균: 538.2px)
+> **가로 범위:** 384px ~ 753px (평균: 497.6px)<br>
+> **세로 범위:** 348px ~ 682px (평균: 538.2px)
 ![eda_size](./assets/eda_size.png)
 
 #### 5. Image File Size Distribution
-> 훈련 이미지: 최소 25KB ~ 최대 164KB<br>
-> 평가 이미지: 최소 25KB ~ 최대 149KB
+> **훈련 이미지:** 최소 25KB ~ 최대 164KB<br>
+> **평가 이미지:** 최소 25KB ~ 최대 149KB
 
 #### 6. Confusion Matrix (V4 실험 결과로 중간 점검)
 > 평균적으로 #3, #7, #4, #14 클래스가 오탐지 빈도 가장 높음<br>
@@ -327,7 +333,7 @@ python-dotenv==1.2.1
 - **Accuracy (Public):** 0.9742
 - **Accuracy (Private):** 0.9638 (unselected)
 
-### Leaderboard Rank: No. 1 🏆 [mid F1: 0.9742 / final F1: 0.9634]
+### Leaderboard Rank: No. 1 🏆 [mid: 0.9742 / final: 0.9634]
 ![submission](./assets/submission.png)
 ![leaderboard](./assets/leaderboard.png)
 ![leaderboard_mid](./assets/leaderboard_mid.png)
@@ -493,7 +499,7 @@ graph TD
 - **역할:** 팀장 (Project Lead) & Main System Architect
 - **협업방식:** Slack 채널 중심의 일정 관리 및 의견 공유. 대회이므로 각자 개발하여 리더보드 제출 (최소 제출 횟수 의무화)
 - **기여도 (90%):** 프로젝트 일정 관리, End-to-End 파이프라인 설계, 단독 개발 및 실험, Git 구축, 최종 산출물 작성 (팀원은 데이터 시각화 지원), 세미나 발표
-- **Strategy:** 이전 대회에서 모호한 R&R(팀장 없음)과 소통 부재로 인해 홀로 프로젝트를 전담해야 했던 리스크를 경험. 이번 대회에서는 팀장으로서 명확한 방향성을 제시하고 팀 내 발생 가능한 리스크를 선제적으로 예방할 필요성을 느낌. 팀원들에게 부담을 주지 않으면서도 최소한의 참여를 보장할 수 있도록, "리더보드 의무 제출 각자 3회 이상"이라는 구체적인 가이드라인을 제시하고 합의를 이끌어냄.<br>
+- **전략 및 성과:** 이전 대회에서 모호한 R&R(팀장 없음)과 소통 부재로 인해 홀로 프로젝트를 전담해야 했던 리스크를 경험. 이번 대회에서는 팀장으로서 명확한 방향성을 제시하고 팀 내 발생 가능한 리스크를 선제적으로 예방할 필요성을 느낌. 팀원들에게 부담을 주지 않으면서도 최소한의 참여를 보장할 수 있도록, "리더보드 의무 제출 각자 3회 이상"이라는 구체적인 가이드라인을 제시하고 합의를 이끌어냄.<br>
 End-to-End 파이프라인 구조 설계, 데이터 전처리, 모델 실험 및 검증 등 핵심 개발 과정을 주도하여 안정적인 대회 1위 달성.<br>
 팀원들이 효율적으로 기여할 수 있는 태스크(산출물 시각화 협조)를 배분하고 취합하여 세미나 발표까지 성공적으로 마무리.
 
